@@ -13,6 +13,7 @@ setup(
         "black",
         "google-auth",
         "google-auth-httplib2",
+        "coverage",
     ],
     packages=find_packages(),
 )

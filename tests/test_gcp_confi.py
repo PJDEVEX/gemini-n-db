@@ -1,10 +1,13 @@
 import os
 import unittest
 from dotenv import load_dotenv
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from google.auth.transport.requests import Request
 from google.oauth2.service_account import Credentials
-from src.gcp.gcp_confi import get_service_account_credentials_and_refresh
+from src.gcp.gcp_confi import (
+    get_service_account_credentials_and_refresh,
+    initialize_vertexai_client
+    )
 
 
 # Load the environment variables
@@ -17,6 +20,7 @@ GOOGLE_APPLICATION_CREDENTIALS = os.getenv(
 MODEL = os.getenv("MODEL")
 PROJECT_ID = os.getenv("PROJECT_ID")
 REGION = os.getenv("REGION")
+
 
 
 class TestApp(unittest.TestCase):
@@ -46,7 +50,34 @@ class TestApp(unittest.TestCase):
         """
         with self.assertRaises(RuntimeError):
             get_service_account_credentials_and_refresh("non_existing_key_file.json")
+    
+    def test_initialize_vertexai_client_success(self):
+        """
+        Test the initialize_vertexai_client function
+        """
+        with patch('src.gcp.gcp_confi.vertexai.init') as mock_init:
+            # mocking
+            mock_client = MagicMock()
+            mock_init.return_value = mock_client
 
+            # calling the function
+            client = initialize_vertexai_client(PROJECT_ID, REGION, Credentials)
+
+            # asserting
+            self.assertEqual(client, mock_client)
+            mock_init.assert_called_once_with(project=PROJECT_ID)
+    
+    def test_initialize_vertexai_client_failure(self):
+        """
+        Test the initialize_vertexai_client function
+        """
+        with patch('src.gcp.gcp_confi.vertexai.init') as mock_init:
+            # mocking
+            mock_init.side_effect = Exception("Failed to initialize Vertex AI client")
+
+            # calling the function
+            with self.assertRaises(RuntimeError):
+                initialize_vertexai_client(PROJECT_ID, REGION, Credentials)
 
 if __name__ == '__main__':
     unittest.main()
