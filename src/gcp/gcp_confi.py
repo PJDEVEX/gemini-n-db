@@ -38,3 +38,16 @@ def get_service_account_credentials_and_refresh(key_file) -> Credentials:
 # Call get_service_account_credentials_and_refresh
 key_file = GOOGLE_APPLICATION_CREDENTIALS
 credentials = get_service_account_credentials_and_refresh(key_file)
+
+def initialize_vertexai_client(project_id: str, region: str, credentials: Credentials):
+    """
+    Initialize the Vertex AI client
+    """
+    try:
+        client = vertexai.init(project=PROJECT_ID)
+        print("Vertex AI client initialized successfully!")
+        return client
+    except Exception as e:
+        raise RuntimeError("Failed to initialize Vertex AI client") from e
+    
+vertexai_client = initialize_vertexai_client(PROJECT_ID, REGION, credentials)
