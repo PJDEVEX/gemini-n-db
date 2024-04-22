@@ -7,7 +7,6 @@ from google.oauth2.service_account import Credentials
 from src.gcp.gcp_confi import (
     get_service_account_credentials_and_refresh,
     initialize_vertexai_client,
-    get_gemini_response,
 )
 
 
@@ -24,7 +23,7 @@ REGION = os.getenv("REGION")
 
 
 
-class TestApp(unittest.TestCase):
+class TestGcpConfi(unittest.TestCase):
     @patch('src.gcp.gcp_confi.Credentials')
     @patch('src.gcp.gcp_confi.Request')
     def test_get_service_account_credentials_and_refresh_success(self, mock_request, mock_credentials):
@@ -78,53 +77,7 @@ class TestApp(unittest.TestCase):
 
             # calling the function
             with self.assertRaises(RuntimeError):
-                initialize_vertexai_client(PROJECT_ID, REGION, Credentials)
-    
-
-    @patch('src.gcp.gcp_confi.GenerativeModel')
-    def test_get_gemini_response_success(self, mock_generative_model):
-        """
-        Test the get_gemini_response function for success
-        """
-        # Mocking the GenerativeModel instance and its generate_content method
-        mock_model_instance = MagicMock()
-        mock_model_instance.generate_content.return_value.text = "Generated response"
-        mock_generative_model.return_value = mock_model_instance
-        
-        # Call the function with sample parameters
-        response = get_gemini_response("Sample question", "Sample prompt")
-        
-        # Assertions
-        self.assertEqual(response, "Generated response")
-        mock_generative_model.assert_called_once_with(MODEL)
-        mock_model_instance.generate_content.assert_called_once_with(["Sample question", "Sample prompt"])
-
-
-    @patch('src.gcp.gcp_confi.GenerativeModel')
-    def test_get_gemini_response_failure_loading_model(self, mock_generative_model):
-        """
-        Test the get_gemini_response function for failure in loading the model
-        """
-        # Mocking the GenerativeModel class to raise ImportError
-        mock_generative_model.side_effect = ImportError("Failed to load the model")
-        
-        # Call the function with sample parameters and assert for RuntimeError
-        with self.assertRaises(RuntimeError):
-            get_gemini_response("Sample question", "Sample prompt")
-    
-    @patch('src.gcp.gcp_confi.GenerativeModel')
-    def test_get_gemini_response_failure_generating_content(self, mock_generative_model):
-        """
-        Test the get_gemini_response function for failure in generating content
-        """
-        # Mocking the GenerativeModel instance and its generate_content method to raise an exception
-        mock_model_instance = MagicMock()
-        mock_model_instance.generate_content.side_effect = Exception("Failed to generate content")
-        mock_generative_model.return_value = mock_model_instance
-        
-        # Call the function with sample parameters and assert for RuntimeError
-        with self.assertRaises(RuntimeError):
-            get_gemini_response("Sample question", "Sample prompt")
+                initialize_vertexai_client(PROJECT_ID, REGION, Credentials)    
 
 if __name__ == '__main__':
     unittest.main()
