@@ -19,7 +19,7 @@ def get_gemini_response(question, prompt):
     prompt (str): The prompt for the model.
 
     Returns:
-    str: The generated content.
+    str: An SQL query string.
     """
     try:
         model =GenerativeModel(MODEL)
@@ -27,7 +27,7 @@ def get_gemini_response(question, prompt):
         print(f"Error: {e}")
         raise RuntimeError("Failed to load the model") from e
     try:
-        response = model.generate_content([question, prompt])
+        response = model.generate_content([question, prompt[0]])
     except Exception as e:
         print(f"Error: {e}")
         raise RuntimeError("Failed to generate content") from e
@@ -38,47 +38,94 @@ def read_sql_query(sql, db):
     This function retrieves and returns the SQL query from the database.
 
     Parameters:
-    sql (str): The SQL query to be executed to potentially retrieve the actual query string.
+    sql (str): The SQL query to be executed.
     db (str): The database name.
 
     Returns:
-    str (optional): The retrieved SQL query string (if stored in the database).
+    
     list (optional): A list of query results if the query returns multiple rows.
                     This behavior depends on how the query and results are stored.
     """
     try:
-        with sqlite3.connect(db) as connection:
-            cursor = connection.cursor()
-            cursor.execute(sql)
-            rows = cursor.fetchall()
-
-            if len(rows) == 1:
-                return rows[0][0]  # Assuming single row, single column for query string
-            elif len(rows) > 1:
-                return [row[0] for row in rows]  # Return list of results (optional)
-            else:
-                # Handle the case where no rows are returned (optional)
-                return None  # Or raise an exception if expected
-
-    except sqlite3.Error as e:
-        print(f"SQLite error: {e}")
-        raise
-
+        conn=sqlite3.connect(db)
     except Exception as e:
         print(f"Error: {e}")
-        raise
+        raise RuntimeError("Failed to connect to the database") from e
+    try: 
+        cur=conn.cursor()
+    except Exception as e:
+        print(f"Error: {e}")
+        raise RuntimeError("Failed to create cursor") from e
+    try:
+        cur.execute(sql)
+    except Exception as e:
+        print(f"Error: {e}")
+        print("sql", sql)
+        raise RuntimeError("Failed to execute the SQL query") from e
+    try:
+        rows=cur.fetchall()
+        for row in rows:
+            print(row)
+    except Exception as e:
+        print(f"Error: {e}")
+        raise RuntimeError("Failed to fetch all rows") from e
+    try:
+        conn.commit()
+    except Exception as e:
+        print(f"Error: {e}")
+        raise RuntimeError("Failed to commit the changes") from e
+    try:
+        conn.close()
+    except Exception as e:
+        print(f"Error: {e}")
+        raise RuntimeError("Failed to close the connection") from e
+    return rows
 
-prompt=[
-    """
-    You are an expert in converting English text to SQL query!
-    The SQL database has the name STUDENT and has following columns - NAME, \
-    CLASS, SECTION. \n\n Fro example, \nExample 1: How many entries of records \
-    are present?, the SQL command will be like SELECT COUNT(*) FROM STUDENTS; \n \
-    Example 2: What are the names of students in class 10?, the SQL command will \
-    be like SELECT NAME FROM STUDENTS WHERE CLASS = 10; \n\n also sql code should \
-    not have ``` in the beginning and end and sql word in output. If you get any \
-    error in configuration, please ask user to getting touch with the admin. \
-   
+prompt_text = [
+"""
+**You are an expert in converting English text to SQL queries!**
 
+**Goal:** Generate an accurate SQL query that retrieves the desired information from the `STUDENT` database table based on the questions asked by the users.
+
+**NOTE**: 
+    Your whole job is to convert the user's question into a SQL query ONLY.
+    DO NOT give any further explanations for the SQL query. 
+    The database schema is provided below for reference. 
+    You can assume that the database is already populated with data. 
+    The SQL query should be generated based on the user's question.
+
+**Database Name:** `STUDENT`
+**Database Type:** SQLite
+**Database File:** `student.db`
+**Database Tables:** `STUDENT`
+**Database Columns:** `NAME`, `CLASS`, `SECTION`, `MARKS`
+
+**Database Schema:**
+
+The `STUDENT` table has the following columns:
+
+* `NAME` (VARCHAR(25)): Name of the student
+* `CLASS` (VARCHAR(25)): Class the student belongs to
+* `SECTION` (VARCHAR(25)): Section the student belongs to (optional)
+* `MARKS` (INT(3)): Marks obtained by the student
+
+**Examples:**
+
+* **Question:** Question: How many students are there in the database?
+* **Query:** `SELECT COUNT(*) AS Total_Students FROM STUDENT;`
+
+* **Question:** How many students are there in each class??
+* **Query:** `SELECT CLASS, COUNT(*) AS Total_Students FROM STUDENT GROUP BY CLASS;`
+
+* **Question:** What is the average marks of students in each class?
+* **Query:** `SELECT CLASS, AVG(MARKS) AS Average_Marks FROM STUDENT GROUP BY CLASS;`
+
+* **Question:** What is the total number of students in each class?
+* **Query:** `SELECT CLASS, COUNT(*) AS Total_Students FROM STUDENT GROUP BY CLASS;`
+
+**Let's get started!**
+
+Please ask your question about the `STUDENT` database, and I'll do my \
+    best to generate the corresponding SQL query.
 """
 ]
