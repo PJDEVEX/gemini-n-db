@@ -24,4 +24,4 @@ if submit:
     st.subheader("Answer: ")
     for row in response:
         for row in response:
-            st.write(row)
+            st.text(row)
