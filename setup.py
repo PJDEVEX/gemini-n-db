@@ -14,6 +14,9 @@ setup(
         "google-auth",
         "google-auth-httplib2",
         "coverage",
+        "huggingface-hub",
+        "huggingface-cli",
+        "transformers",
     ],
     packages=find_packages(),
 )

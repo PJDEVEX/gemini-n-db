@@ -6,5 +6,8 @@ google-auth-httplib2
 flask
 black
 coverage
+huggingface-hub
+huggingface-cli
+transformers
 
 -e .
