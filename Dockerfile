@@ -1,11 +1,8 @@
 FROM python:3.8-slim-buster
 
 # Update and install AWS CLI
-RUN apt-get update -y && \
-apt-get install -y --no-install-recommends \
-awscli && \
-apt-get clean \
-# rm -rf /var/lib/apt/lists/*
+RUN apt update -y && \
+apt insta awscli -y
 
 # Set working directory
 WORKDIR /app
