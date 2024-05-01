@@ -10,8 +10,7 @@ WORKDIR /app
 # Copy applicstion code
 COPY . /app
 # Install dependencies
-RUN pip3 install --upgrade pip3 && \
-    pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 # Defualt commands
 CMD [ "python3", "app.py" ]
