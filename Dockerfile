@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM python:3.10-slim
 
 # Update and install AWS CLI
 RUN apt update -y && \
@@ -15,5 +15,8 @@ RUN pip3 install -r requirements.txt
 # Expose port
 EXPOSE 8501
 
-# Defualt commands
-CMD ["streamlit", "run", "app.py"]
+# Entrypoint
+ENTRYPOINT ["streamlit", "run"]
+
+# Command to run the application
+CMD ["app.py"]
