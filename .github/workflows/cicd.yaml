@@ -88,9 +88,7 @@ jobs:
          
       - name: Stop and remove container if running (conditional)
         run: |
-          if docker ps -q --filter "name=cnncls" | grep -q .; then
-            docker stop cnncls && docker rm -fv cnncls
-          fi
+          docker ps -q --filter "name=cnncls" | grep -q . && docker stop cnncls && docker rm -fv cnncls
        
       - name: Run Docker Image to serve users
         run: |
