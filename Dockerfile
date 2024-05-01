@@ -13,4 +13,4 @@ COPY . /app
 RUN pip3 install -r requirements.txt
 
 # Defualt commands
-CMD [ "python3", "app.py" ]
+CMD ["streamlit", "run", "app.py"]
