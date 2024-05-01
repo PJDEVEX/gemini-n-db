@@ -12,5 +12,8 @@ COPY . /app
 # Install dependencies
 RUN pip3 install -r requirements.txt
 
+# Expose port
+EXPOSE 8501
+
 # Defualt commands
 CMD ["streamlit", "run", "app.py"]
