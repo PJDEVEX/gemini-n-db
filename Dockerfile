@@ -1,22 +1,22 @@
 FROM python:3.10-slim
 
+# Update and install AWS CLI
+RUN apt update -y && \
+apt install awscli -y
+
+# Set working directory
 WORKDIR /app
 
-COPY requirements.txt ./requirements.txt
-
-RUN apt-get update && apt-get install -y && \
-        apt install awscli -y \
-        --no-install-recommends \
-        ca-certificates \
-        netbase \
-        && rm -rf /var/lib/apt/lists/*
-
+# Copy applicstion code
+COPY . /app
+# Install dependencies
 RUN pip3 install -r requirements.txt
 
+# Expose port
 EXPOSE 8501
 
-COPY . .
-
+# Entrypoint
 ENTRYPOINT ["streamlit", "run"]
 
+# Command to run the application
 CMD ["app.py"]
