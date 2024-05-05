@@ -162,6 +162,7 @@ cython_debug/
 
 #GCP credentials
 credentials/gemini-n-db-596255546730.json
+credentials/gemini-n-db-kp.pem
 
 # todo list
 todo.md
