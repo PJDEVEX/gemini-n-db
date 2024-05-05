@@ -8,8 +8,7 @@ WORKDIR /app
 
 # Update and install AWS CLI
 RUN apt update -y && \
-apt install awscli -y \
-rm -rf /var/lib/apt/lists/*
+apt install awscli -y
 
 
 # Copy applicstion code
